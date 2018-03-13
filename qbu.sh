@@ -127,13 +127,12 @@ run_build() {
   [ -f PKGBUILD ] || (error "missing PKGBUILD" && return $EXIT_FAILURE)
 
   out=$(mktemp)
-  prepare_chroot $2 2>&1 | tee "$out" \
-    || build_error "broken qbu-$2" $out
+  prepare_chroot $2 2>&1 | tee "$out" || build_error "broken qbu-$2" $out
   rm "$out"
   out=$(mktemp)
   sudo libremakepkg -n qbu-$2 2>&1 | tee "$out"
   res=$?
-  [ -z $res ] && build_success "$1-$2" || build_error "$1-$2" $out
+  [ $res -eq 0 ] && build_success "$1-$2" || build_error "$1-$2" $out
   rm "$out"
   return $res
 }
