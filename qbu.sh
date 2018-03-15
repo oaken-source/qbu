@@ -3,6 +3,7 @@
 set -euo pipefail
 [ -z "${DEBUG:-}" ] || set -x
 
+. "$(librelib conf)"
 . "$(librelib messages)"
 
 list_builds() {
@@ -50,6 +51,10 @@ enqueue_builds() {
         | sed "s@any@$(uname -m)@" | sort -r | uniq) )
     [ -n "${arches[0]}" ] || (error "malformed PKGBUILD" && return $EXIT_FAILURE)
   fi
+
+  load_conf libretools.conf ARCHES
+  arches=( $(comm -12 <(printf '%s\n' "${ARCHES[@]}" | sort)
+                      <(printf '%s\n' "${arches[@]}" | sort)) )
 
   local a
   for a in "${arches[@]}"; do
