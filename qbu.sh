@@ -53,7 +53,7 @@ enqueue_builds() {
   fi
 
   load_conf libretools.conf ARCHES
-  arches=( $(comm -12 <(printf '%s\n' "${ARCHES[@]}" | sort)
+  arches=( $(comm -12 <(printf '%s\n' "${ARCHES[@]}" | sort) \
                       <(printf '%s\n' "${arches[@]}" | sort)) )
 
   local a
