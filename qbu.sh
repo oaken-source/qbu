@@ -7,7 +7,7 @@ set -euo pipefail
 . "$(librelib messages)"
 
 list_builds() {
-  local format="%-3s   %-20s   %-6s   %-8s   %-14s\n"
+  local format="%-3s   %-40s   %-6s   %-8s   %-14s\n"
   printf "$format" "ID" "Package" "Arch" "State" "Times(r/u/s)"
   local snap=$(tsp | tail -n+2)
 
@@ -39,15 +39,15 @@ list_builds() {
 
 enqueue_builds() {
   [ -f PKGBUILD ] || (error "missing PKGBUILD" && return $EXIT_FAILURE)
-  local srcinfo=$(makepkg --printsrcinfo 2>&1) || return $EXIT_FAILURE
-  local pkgname=( $(echo "$srcinfo" | grep 'pkgname = ' | awk '{print $3}') )
+  local pkglist=$(makepkg --packagelist 2>&1) || return $EXIT_FAILURE
+  local pkgname=( $(echo "$pkglist" | rev | cut -d'-' -f2- | rev) )
   [ -n "$pkgname" ] || (error "malformed PKGBUILD" && return $EXIT_FAILURE)
 
   local arches=()
   if [ $# -gt 0 ]; then
     arches+=( "$@" )
   else
-    arches+=( $(echo "$srcinfo" | grep 'arch = ' | awk '{print $3}' \
+    arches+=( $(echo "$pkglist" | rev | cut -d'-' -f1 | rev \
         | sed "s@any@$(uname -m)@" | sort -r | uniq) )
     [ -n "${arches[0]}" ] || (error "malformed PKGBUILD" && return $EXIT_FAILURE)
   fi
@@ -59,7 +59,7 @@ enqueue_builds() {
   local a
   for a in "${arches[@]}"; do
     local running=$(tsp | grep ' running ' | grep -q " x $pkgname $a")
-    [ -z "$running" ] || error "cannot queue for $a: build is running"
+    [ -z "$running" ] || warning "$pkgname-$a: build is already running"
     local id
     for id in $(tsp | grep -v ' running ' | grep " x $pkgname $a" | awk '{print $1}'); do
       tsp -r $id
