@@ -128,7 +128,8 @@ prepare_chroot() {
   fi
 
   # clean the chroot pkg cache
-  yes | sudo librechroot -A $1 -n qbu-$1 run pacman -Scc
+  sudo librechroot -A $1 -n qbu-$1 run \
+    find /var/cache/pacman/pkg -type f -delete
 }
 
 run_build() {
