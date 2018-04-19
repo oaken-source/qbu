@@ -126,6 +126,9 @@ prepare_chroot() {
     sudo librechroot -A $1 -n qbu-$1 make
     sudo librechroot -A $1 -n qbu-$1 update || return
   fi
+
+  # clean the chroot pkg cache
+  yes | sudo librechroot -A $1 -n qbu-$1 run pacman -Scc
 }
 
 run_build() {
