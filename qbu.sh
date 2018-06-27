@@ -47,7 +47,7 @@ enqueue_builds() {
   if [ $# -gt 0 ]; then
     arches+=( "$@" )
   else
-    arches+=( $(echo "$pkglist" | rev | cut -d'-' -f1 | rev \
+    arches+=( $(echo "$pkglist" | rev | cut -d'-' -f1 | rev | cut -d'.' -f1 \
         | sed "s@any@$(uname -m)@" | sort -r | uniq) )
     [ -n "${arches[0]}" ] || (error "malformed PKGBUILD" && return $EXIT_FAILURE)
   fi
