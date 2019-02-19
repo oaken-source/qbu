@@ -35,7 +35,9 @@ list_builds() {
 
   running=$(echo "$snap" | grep ' running ')
   [ -n "$running" ] && while read -r line; do
+    tput bold
     printf "$format" $(echo "$line" | awk '{print $1, $(NF-1), $(NF), $2}') ""
+    tput sgr0
   done <<< "$running"
 
   queued=$(echo "$snap" | grep ' queued ')
@@ -45,12 +47,16 @@ list_builds() {
 
   failed=$(echo "$snap" | grep ' finished ' | awk '$4 != "0" {print $0}')
   [ -n "$failed" ] && while read -r line; do
+    tput setf 1
     printf "$format" $(echo "$line" | awk '{print $1, $(NF-1), $(NF), "failed", $5}')
+    tput sgr0
   done <<< "$failed"
 
   finished=$(echo "$snap" | grep ' finished ' | awk '$4 == "0" {print $0}')
   [ -n "$finished" ] && while read -r line; do
+    tput setf 2
     printf "$format" $(echo "$line" | awk '{print $1, $(NF-1), $(NF), $2, $5}')
+    tput sgr0
   done <<< "$finished"
 
   echo -n "running: $(echo -n "$running" | grep -c '^'), "
